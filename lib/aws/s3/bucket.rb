@@ -295,6 +295,14 @@ module AWS
         end
       end
       
+      def to_xml
+        bucket = Builder::XmlMarkup.new
+        bucket.ListBucketResult { |b| b.Name(self.name);
+          self.objects.each { |object| object.to_xml(b) }
+        }
+
+      end
+      
       private        
         def build_contents!
           return unless has_contents?

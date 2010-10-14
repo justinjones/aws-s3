@@ -418,9 +418,11 @@ module AWS
       
       # Initializes a new S3Object.
       def initialize(attributes = {}, &block)
+        
         super
         self.value  = attributes.delete(:value) 
         self.bucket = attributes.delete(:bucket)
+        @other_attributes = attributes
         yield self if block_given?
       end
       
@@ -594,12 +596,24 @@ module AWS
         )
       end
         
+      def to_xml (builder = nil)
+        builder ||= Builder::XmlMarkup.new
+        builder.Contents { |c| c.Key(self.key)
+          c.LastModified(@other_attributes["last_modified"])
+          c.ETag(@other_attributes["etag"])
+          c.Size(self.size)
+          c.Owner { |owner| owner.ID(self.owner.id); owner.DisplayName(self.owner.display_name) }
+          c.StorageClass(self.storage_class)
+        }
+      end
+        
       # Don't dump binary data :)
       def inspect #:nodoc:
         "#<%s:0x%s '%s'>" % [self.class, object_id, path]
       end
       
       private
+      
         def proxiable_attribute?(name)
           valid_header_settings.include?(name)
         end
