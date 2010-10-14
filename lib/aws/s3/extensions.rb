@@ -1,5 +1,9 @@
 #:stopdoc:
 
+module URI
+    UNSAFE = Regexp.new(URI::UNSAFE.to_s.sub('+', ''))
+end
+
 class Hash
   def to_query_string(include_question_mark = true)
     query_string = ''
