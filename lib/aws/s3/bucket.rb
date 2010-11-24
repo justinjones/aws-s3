@@ -153,6 +153,25 @@ module AWS
           find(name, options).object_cache
         end
         
+        def versioned_objects(name = nil, options = {})
+          path = path(name, options)
+          path = (path.include?("?") ? path.split("?").join("?versions&") : path << "?versions")
+          response = get(path)
+          xml = response.bucket
+          versions = {}
+          xml.delete('version').each do |content|            
+            object = S3Object.new(content)
+            metaclass = class << object; self; end
+            metaclass.send :attr_accessor, :version, :is_latest
+            object.version = content['version_id']
+            object.is_latest = content['is_latest']
+            versions[object.key] = [] unless versions[object.key]
+            versions[object.key] << object
+          end
+          
+          versions
+        end
+        
         # Deletes the bucket named <tt>name</tt>.
         #
         # All objects in the bucket must be deleted before the bucket can be deleted. If the bucket is not empty, 
