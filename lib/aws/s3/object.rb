@@ -297,7 +297,7 @@ module AWS
             options.replace(bucket)
             bucket = nil
           end
-          '/' << File.join(bucket_name(bucket), name)
+          '/' << File.join(bucket_name(bucket), name) << options.to_query_string
         end
     
         private
@@ -546,7 +546,9 @@ module AWS
       def delete
         bucket.update(:deleted, self)
         freeze
-        self.class.delete(key, bucket.name)
+        options = {}
+        options[:VersionId] = attributes['version_id'] if attributes['version_id']
+        self.class.delete(key, bucket.name, options)
       end
       
       # Copies the current object, given it the name <tt>copy_name</tt>. Keep in mind that due to limitations in 

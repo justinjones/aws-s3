@@ -27,6 +27,7 @@ require 's3/exceptions'
 require 's3/connection'
 require 's3/authentication'
 require 's3/response'
+require 's3/fake_bucket'
 
 AWS::S3::Base.class_eval do
   include AWS::S3::Connection::Management

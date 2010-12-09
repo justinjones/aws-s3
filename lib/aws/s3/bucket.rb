@@ -157,19 +157,21 @@ module AWS
           path = path(name, options)
           path = (path.include?("?") ? path.split("?").join("?versions&") : path << "?versions")
           response = get(path)
-          xml = response.bucket
-          versions = {}
-          xml.delete('version').each do |content|            
+          bucket = FakeBucket.new(name)
+          (response.bucket.delete('version') || []).inject({}) do |versions, content|
             object = S3Object.new(content)
+            object.bucket = bucket
             metaclass = class << object; self; end
-            metaclass.send :attr_accessor, :version, :is_latest
+            metaclass.send :attr_accessor, :version, :is_latest, :is_delete_marker
             object.version = content['version_id']
             object.is_latest = content['is_latest']
+            
+            #TODO, need some way of detecting deletion markers
             versions[object.key] = [] unless versions[object.key]
             versions[object.key] << object
+            
+            versions
           end
-          
-          versions
         end
         
         # Deletes the bucket named <tt>name</tt>.
