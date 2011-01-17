@@ -100,13 +100,13 @@ module AWS
         # are listed in the documentation for Bucket.objects.
         def find(name = nil, options = {})
           response = get(path(name, options)).bucket
-          if not options.has_key?(:max_keys) and response['is_truncated']
-            begin
-              options[:marker] = response['contents'].last['key']
-              temp_response = get(path(name, options)).bucket
-              response['contents'] += temp_response['contents']
-            end while(temp_response['is_truncated'])
-          end
+#          if not options.has_key?(:max_keys) and response['is_truncated']
+#            begin
+#              options[:marker] = response['contents'].last['key']
+#              temp_response = get(path(name, options)).bucket
+#              response['contents'] += temp_response['contents']
+#            end while(temp_response['is_truncated'])
+#          end
           new(response)
         end
         
